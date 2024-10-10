@@ -2,11 +2,9 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -23,19 +21,19 @@ impl<T> Node<T> {
     }
 }
 #[derive(Debug)]
-struct LinkedList<T> {
+struct LinkedList<T: PartialOrd> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,18 +67,41 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a:LinkedList<T>, mut list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        match (list_a.start, list_b.start) {
+            (None, None) => list_a,
+            (None, Some(_)) => list_b,
+            (Some(_), None) => list_a,
+            (Some(a_start), Some(b_start)) => {
+                let a_fst = list_a.get(0).unwrap();
+                let b_fst = list_b.get(0).unwrap();
+
+                if *a_fst < *b_fst {
+                    let mut list_c = Self::merge(Self {
+                        length: list_a.length - 1,
+                        start: unsafe {(*a_start.as_ptr()).next},
+                        ..list_a
+                    }, list_b);
+                    unsafe { (*a_start.as_ptr()).next = list_c.start }
+                    list_c.start = list_a.start;
+                    list_c
+                } else {
+                    let mut list_c = Self::merge(list_a, Self {
+                        length: list_b.length - 1,
+                        start: unsafe{(*b_start.as_ptr()).next},
+                        ..list_b
+                    });
+                    unsafe { (*b_start.as_ptr()).next = list_c.start }
+                    list_c.start = list_b.start;
+                    list_c
+                }
+            },
         }
 	}
 }
 
-impl<T> Display for LinkedList<T>
+impl<T: PartialOrd> Display for LinkedList<T>
 where
     T: Display,
 {

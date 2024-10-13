@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,59 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count += 1;
+        self.items.push(value);
+
+        let mut c_idx = self.count;
+        loop {
+            let p_idx = self.parent_idx(c_idx);
+            if p_idx == 0 || (self.comparator)(&self.items[p_idx], &self.items[c_idx]) {
+                return
+            } else {
+                self.items.swap(p_idx, c_idx);
+                c_idx = p_idx;
+            }
+        }
+    }
+
+    pub fn remove(&mut self) -> Option<T> {
+        if self.is_empty() {
+            None
+        } else {
+            self.items.swap(1, self.count);
+            let v = self.items.remove(self.count);
+            self.count -= 1;
+            
+            let mut idx = 1;
+            loop {
+                if self.count % 2 == 0 {
+                    let r_idx = self.right_child_idx(idx);
+                    if r_idx >= self.items.len() {
+                        break;
+                    } else {
+                        if !(self.comparator)(&self.items[r_idx], &self.items[idx]) {
+                            break;
+                        } else {
+                            self.items.swap(idx, r_idx);
+                            idx = r_idx;
+                        }
+                    }
+                } else {
+                    let l_idx = self.left_child_idx(idx);
+                    if l_idx >= self.items.len() {
+                        break;
+                    } else {
+                        if !(self.comparator)(&self.items[l_idx], &self.items[idx]) {
+                            break;
+                        } else {
+                            self.items.swap(idx, l_idx);
+                            idx = l_idx;
+                        }
+                    }
+                }
+            }
+            Some(v)
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -84,8 +135,7 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        self.remove()
     }
 }
 

@@ -3,11 +3,39 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T: PartialOrd + Copy>(array: &mut [T]){
+    if array.len() > 1 {
+        qsort(array, 0, array.len() - 1);
+    }
 }
+
+fn qsort<T: PartialOrd + Copy>(xs: &mut [T], lo: usize, hi: usize) {
+    if lo < hi {
+        let p = partition(xs, lo, hi);
+        if p > 0 {
+            qsort(xs, lo, p - 1);
+        }
+        qsort(xs, p + 1, hi);
+    }
+}
+
+fn partition<T: PartialOrd + Copy>(xs: &mut [T], lo: usize, hi: usize) -> usize{
+    if lo >= hi {
+        return lo;
+    }
+    let pivot = xs[hi];
+    let mut i = lo;
+    for j in lo..hi {
+        if xs[j] <= pivot {
+            xs.swap(i,j);
+            i += 1;
+        }
+    }
+    xs.swap(i, hi);
+    return i;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
